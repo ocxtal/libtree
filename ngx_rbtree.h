@@ -20,19 +20,19 @@
 /**
  * modified to hold 64bit key-value pairs
  */
-typedef int64_t ngx_rbtree_key_t;
+// typedef int64_t ngx_rbtree_key_t;
 
 
 typedef struct ngx_rbtree_node_s  ngx_rbtree_node_t;
 
 struct ngx_rbtree_node_s {
-    ngx_rbtree_key_t       key;
     ngx_rbtree_node_t     *left;
     ngx_rbtree_node_t     *right;
     ngx_rbtree_node_t     *parent;
     uint8_t                 color;
     uint8_t                 data;
     uint8_t                 pad[6];
+    int64_t                key;
 };
 
 
@@ -67,9 +67,9 @@ void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t *root,
  * find_key return the leftmost node
  * added 2015/11/06
  */
-ngx_rbtree_node_t *ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
-ngx_rbtree_node_t *ngx_rbtree_find_key_left(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
-ngx_rbtree_node_t *ngx_rbtree_find_key_right(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_key(ngx_rbtree_t *tree, int64_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_key_left(ngx_rbtree_t *tree, int64_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_key_right(ngx_rbtree_t *tree, int64_t key);
 ngx_rbtree_node_t *ngx_rbtree_find_left(ngx_rbtree_t *tree, ngx_rbtree_node_t *node);
 ngx_rbtree_node_t *ngx_rbtree_find_right(ngx_rbtree_t *tree, ngx_rbtree_node_t *node);
 

@@ -9,6 +9,7 @@
 // #include <ngx_core.h>
 #include <stdlib.h>
 #include "ngx_rbtree.h"
+#include "log.h"
 
 /*
  * The red-black tree code is based on the algorithm described in
@@ -321,20 +322,65 @@ ngx_rbtree_delete(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
 }
 
 
+#if 0
 ngx_rbtree_node_t *
-ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
+ngx_rbtree_find_node(ngx_rbtree_t *tree, int64_t key)
+{
+    ngx_rbtree_node_t *prev = NULL;
+    ngx_rbtree_node_t *node = tree->root;
+    ngx_rbtree_node_t *sentinel = tree->sentinel;
+
+    while(node != sentinel) {
+
+        debug("key(%lld), node(%p), node->key(%lld), node->left(%p), node->right(%p)",
+            key, node, node->key, node->left, node->right);
+        prev = node; node = (key <= node->key) ? node->left : node->right;
+    }
+    return(prev);
+}
+
+
+ngx_rbtree_node_t *
+ngx_rbtree_find_key(ngx_rbtree_t *tree, int64_t key)
+{
+    ngx_rbtree_node_t *node = ngx_rbtree_find_node(tree, key);
+    return((node != NULL && key == node->key) ? node : NULL);
+}
+
+
+ngx_rbtree_node_t *
+ngx_rbtree_find_key_right(ngx_rbtree_t *tree, int64_t key)
+{
+    ngx_rbtree_node_t *node = ngx_rbtree_find_node(tree, key);
+    return((node != NULL && key > node->key) ? ngx_rbtree_find_right(tree, node) : node);
+}
+
+
+ngx_rbtree_node_t *
+ngx_rbtree_find_key_left(ngx_rbtree_t *tree, int64_t key)
+{
+    ngx_rbtree_node_t *node = ngx_rbtree_find_node(tree, key);
+    return((node != NULL && key < node->key) ? ngx_rbtree_find_left(tree, node) : node);
+}
+
+
+#else
+ngx_rbtree_node_t *
+ngx_rbtree_find_key(ngx_rbtree_t *tree, int64_t key)
 {
     ngx_rbtree_node_t *node = tree->root;
     ngx_rbtree_node_t *sentinel = tree->sentinel;
 
     while(node != sentinel) {
+        debug("node(%p), node->key(%lld)", node, node->key);
         if(key < node->key) {
             node = node->left;
         } else if(key > node->key) {
             node = node->right;
         } else {
             /* key == node->key */
-            while(key == node->left->key) {
+            while(node != sentinel && key == node->left->key) {
+                debug("node(%p), node->key(%lld)", node, node->key);
                 node = node->left;
             }
             return(node);
@@ -345,7 +391,7 @@ ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
 
 
 ngx_rbtree_node_t *
-ngx_rbtree_find_key_right(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
+ngx_rbtree_find_key_right(ngx_rbtree_t *tree, int64_t key)
 {
     ngx_rbtree_node_t *node = tree->root;
     ngx_rbtree_node_t *sentinel = tree->sentinel;
@@ -374,7 +420,7 @@ ngx_rbtree_find_key_right(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
 
 
 ngx_rbtree_node_t *
-ngx_rbtree_find_key_left(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
+ngx_rbtree_find_key_left(ngx_rbtree_t *tree, int64_t key)
 {
     ngx_rbtree_node_t *node = tree->root;
     ngx_rbtree_node_t *sentinel = tree->sentinel;
@@ -400,7 +446,7 @@ ngx_rbtree_find_key_left(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
     }
     return(NULL);
 }
-
+#endif
 
 ngx_rbtree_node_t *
 ngx_rbtree_find_right(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)

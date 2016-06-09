@@ -334,7 +334,7 @@ unittest()
 
 	/* insert */
 	for(int64_t i = 0; i < 256; i++) {
-		tree_node_t *n = (tree_node_t *)tree_create_node(tree);
+		tree_node_t *n = tree_create_node(tree);
 		assert(n != NULL);
 
 		int64_t *o = (int64_t *)tree_get_object(n);
@@ -492,6 +492,57 @@ unittest()
 		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
 		assert(obj[1] == i, "obj[1](%lld), val(%lld)", obj[1], i);
 	}
+
+	tree_clean(tree);
+}
+
+/* search_key_left / search_key_right / left / right */
+unittest()
+{
+	tree_t *tree = tree_init(8, NULL);
+
+	#define _shuf(x)		( (0xff & ((i<<4) | (i>>4))) )
+
+	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
+
+	/* insert */
+	for(int64_t i = 0; i < 256; i++) {
+		tree_node_t *n = tree_create_node(tree);
+		assert(n != NULL);
+
+		int64_t *o = (int64_t *)tree_get_object(n);
+		o[0] = _shuf(i)<<1;
+		o[1] = i;
+
+		tree_insert(tree, n);
+	}
+
+	/* search left */
+	tree_node_t *n1 = tree_search_key_left(tree, 64);
+	tree_node_t *n2 = tree_search_key_left(tree, 65);
+	assert(n1 == n2, "n1(%p), n2(%p)", n1, n2);
+	assert(n1->key == 64, "key(%lld)", n1->key);
+	assert(n2->key == 64, "key(%lld)", n2->key);
+
+	/* left and right */
+	n1 = tree_left(tree, n1);
+	assert(n1->key == 62, "key(%lld)", n1->key);
+	n2 = tree_right(tree, n2);
+	assert(n2->key == 66, "key(%lld)", n2->key);
+
+
+	/* search right */
+	n1 = tree_search_key_right(tree, 31);
+	n2 = tree_search_key_right(tree, 32);
+	assert(n1 == n2, "n1(%p), n2(%p)", n1, n2);
+	assert(n1->key == 32, "key(%lld)", n1->key);
+	assert(n2->key == 32, "key(%lld)", n2->key);
+
+	/* left and right */
+	n1 = tree_left(tree, n1);
+	assert(n1->key == 30, "key(%lld)", n1->key);
+	n2 = tree_right(tree, n2);
+	assert(n2->key == 34, "key(%lld)", n2->key);
 
 	tree_clean(tree);
 }

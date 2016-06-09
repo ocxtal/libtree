@@ -503,6 +503,36 @@ unittest()
 
 	#define _shuf(x)		( (0xff & ((i<<4) | (i>>4))) )
 
+	/* search left */
+	tree_node_t *n = tree_search_key_left(tree, 0);
+	assert(n == NULL);
+
+	n = tree_search_key_left(tree, 100);
+	assert(n == NULL);
+
+	/* search right */
+	n = tree_search_key_right(tree, 0);
+	assert(n == NULL);
+
+	n = tree_search_key_right(tree, 200);
+	assert(n == NULL);
+
+	tree_clean(tree);
+
+	/* left / right of sentinel */
+	n = tree_left(tree, (tree_node_t *)&tree->sentinel);
+	assert(n == NULL);
+
+	n = tree_right(tree, (tree_node_t *)&tree->sentinel);
+	assert(n == NULL);
+}
+
+unittest()
+{
+	tree_t *tree = tree_init(8, NULL);
+
+	#define _shuf(x)		( (0xff & ((i<<4) | (i>>4))) )
+
 	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
 
 	/* insert */

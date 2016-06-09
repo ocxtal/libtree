@@ -327,12 +327,10 @@ ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
     ngx_rbtree_node_t *node = tree->root;
     ngx_rbtree_node_t *sentinel = tree->sentinel;
 
-    for(;;) {
+    while(node != sentinel) {
         if(key < node->key) {
-            if(node->left == sentinel) { return(NULL); }
             node = node->left;
         } else if(key > node->key) {
-            if(node->right == sentinel) { return(NULL); }
             node = node->right;
         } else {
             /* key == node->key */

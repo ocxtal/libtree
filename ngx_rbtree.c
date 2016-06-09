@@ -56,7 +56,7 @@ ngx_rbtree_insert(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
         return;
     }
 
-    tree->insert(*root, node, sentinel);
+    ngx_rbtree_insert_value(*root, node, sentinel);
 
     /* re-balance tree */
 

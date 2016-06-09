@@ -44,15 +44,14 @@ typedef void (*ngx_rbtree_insert_pt) (ngx_rbtree_node_t *root,
 struct ngx_rbtree_s {
     ngx_rbtree_node_t     *root;
     ngx_rbtree_node_t     *sentinel;
-    ngx_rbtree_insert_pt   insert;
+    // ngx_rbtree_insert_pt   insert;
 };
 
 
 #define ngx_rbtree_init(tree, s, i)                                           \
     ngx_rbtree_sentinel_init(s);                                              \
     (tree)->root = s;                                                         \
-    (tree)->sentinel = s;                                                     \
-    (tree)->insert = i
+    (tree)->sentinel = s;
 
 
 void ngx_rbtree_insert(ngx_rbtree_t *tree, ngx_rbtree_node_t *node);

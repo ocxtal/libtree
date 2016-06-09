@@ -19,7 +19,8 @@ typedef struct tree_s tree_t;
  * @struct tree_node_s
  */
 struct tree_node_s {
-	uint8_t pad[32];
+	uint8_t pad[24];
+	int64_t zero;				/* must be zeroed if external memory is used */
 	int64_t key;
 };
 typedef struct tree_node_s tree_node_t;

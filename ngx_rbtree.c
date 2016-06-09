@@ -7,7 +7,8 @@
 
 // #include <ngx_config.h>
 // #include <ngx_core.h>
-
+#include <stdlib.h>
+#include "ngx_rbtree.h"
 
 /*
  * The red-black tree code is based on the algorithm described in
@@ -156,7 +157,7 @@ ngx_rbtree_insert_timer_value(ngx_rbtree_node_t *temp, ngx_rbtree_node_t *node,
 void
 ngx_rbtree_delete(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
 {
-    ngx_uint_t           red;
+    uint8_t           red;
     ngx_rbtree_node_t  **root, *sentinel, *subst, *temp, *w;
 
     /* a binary tree delete */
@@ -335,7 +336,7 @@ ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
             node = node->right;
         } else {
             /* key == node->key */
-            while(key == node->left.key) {
+            while(key == node->left->key) {
                 node = node->left;
             }
             return(node);
@@ -364,7 +365,7 @@ ngx_rbtree_find_key_right(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
             node = node->right;
         } else {
             /* key == node->key */
-            while(key == node->left.key) {
+            while(key == node->left->key) {
                 node = node->left;
             }
             return(node);
@@ -393,7 +394,7 @@ ngx_rbtree_find_key_left(ngx_rbtree_t *tree, ngx_rbtree_key_t key)
             node = node->right;
         } else {
             /* key == node->key */
-            while(key == node->left.key) {
+            while(key == node->left->key) {
                 node = node->left;
             }
             return(node);
@@ -417,7 +418,7 @@ ngx_rbtree_find_right(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
     }
 
     /* when the node has no right child */
-    while(node->parent != NULL && node == node->parent.right) {
+    while(node->parent != NULL && node == node->parent->right) {
         node = node->parent;
     }
     return(node->parent);
@@ -438,7 +439,7 @@ ngx_rbtree_find_left(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
     }
 
     /* when the node has no left child */
-    while(node->parent != NULL && node == node->parent.left) {
+    while(node->parent != NULL && node == node->parent->left) {
         node = node->parent;
     }
     return(node->parent);

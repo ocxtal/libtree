@@ -52,6 +52,21 @@ _static_assert(offsetof(struct tree_node_s, h.key) == TREE_OBJECT_OFFSET);
 _static_assert(tree_get_object(NULL) == (void *)TREE_OBJECT_OFFSET);
 
 /**
+ * @fn tree_free_elem
+ */
+static
+void tree_free_elem(
+	ngx_rbtree_node_t **node,
+	ngx_rbtree_node_t *sentinel)
+{
+	if(*node != sentinel && (*node)->data != 0xff) {
+		debug("free node(%p), sentinel(%p)", *node, sentinel);
+		free(*node);
+	}
+	return;
+}
+
+/**
  * @fn tree_clean
  */
 void tree_clean(
@@ -60,8 +75,9 @@ void tree_clean(
 	struct tree_s *tree = (struct tree_s *)_tree;
 	if(tree == NULL) { return; }
 
-	lmm_t *lmm = tree->lmm;
+	ngx_rbtree_walk(&tree->t, (ngx_rbtree_walk_pt)tree_free_elem);
 
+	lmm_t *lmm = tree->lmm;
 	uint8_t *v = tree->vroot;
 	while(v != NULL) {
 		uint8_t *vnext = _next_v(v);
@@ -103,10 +119,12 @@ tree_t *tree_init(
 	/* init free list */
 	struct tree_node_s *tail = (struct tree_node_s *)(tree->v += 2 * sizeof(uint8_t *));
 	tail->h.key = (int64_t)NULL;
+	// tail->h.data = 0xff;
 	debug("vector inited, v(%p), head(%p), root(%p)", tree->v, tree->vhead, tree->vroot);
 
 	/* init tree */
 	ngx_rbtree_init(&tree->t, &tree->sentinel, ngx_rbtree_insert_value);
+	tree->sentinel.data = 0xff;
 	return((tree_t *)tree);
 }
 
@@ -313,9 +331,8 @@ unittest()
 	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
 
 	/* insert */
-	tree_node_t *narr[256];
 	for(int64_t i = 0; i < 256; i++) {
-		tree_node_t *n = narr[i] = tree_create_node(tree);
+		tree_node_t *n = (tree_node_t *)tree_create_node(tree);
 		assert(n != NULL);
 
 		int64_t *o = (int64_t *)tree_get_object(n);
@@ -358,9 +375,97 @@ unittest()
 
 	/* add again */
 	for(int64_t i = 0; i < 128; i++) {
-		tree_node_t *n = narr[i] = tree_create_node(tree);
+		tree_node_t *n = tree_create_node(tree);
 		assert(n != NULL);
 
+		int64_t *o = (int64_t *)tree_get_object(n);
+		o[0] = _shuf(i)<<1;
+		o[1] = 1024 - i;
+
+		tree_insert(tree, n);
+	}
+
+	/* search (3) */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == 1024 - i, "obj[1](%lld), val(%lld)", obj[1], 1024 - i);
+	}
+	for(int64_t i = 128; i < 256; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == i, "obj[1](%lld), val(%lld)", obj[1], i);
+	}
+
+	tree_clean(tree);
+}
+
+/* create multiple nodes */
+unittest()
+{
+	tree_t *tree = tree_init(8, NULL);
+
+	#define _shuf(x)		( (0xff & ((i<<4) | (i>>4))) )
+
+	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
+
+	/* insert */
+	for(int64_t i = 0; i < 256; i++) {
+		tree_node_t *n = (tree_node_t *)malloc(sizeof(tree_node_t) + 8);
+		assert(n != NULL);
+
+		memset(n, 0, sizeof(tree_node_t));
+		int64_t *o = (int64_t *)tree_get_object(n);
+		o[0] = _shuf(i)<<1;
+		o[1] = i;
+
+		tree_insert(tree, n);
+	}
+
+	/* search (1) */
+	for(int64_t i = 0; i < 256; i++) {
+		tree_node_t *n = tree_search_key(tree, i<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == i<<1, "obj[0](%lld), key(%lld)", obj[0], i<<1);
+		assert(obj[1] == _shuf(i), "obj[1](%lld), val(%lld)", obj[1], _shuf(i));
+	}
+
+	/* remove */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+		tree_remove(tree, n);
+		free(n);
+	}
+
+	/* search (2) */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n == NULL);
+	}
+	for(int64_t i = 128; i < 256; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == i, "obj[1](%lld), val(%lld)", obj[1], i);
+	}
+
+	/* add again */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = (tree_node_t *)malloc(sizeof(tree_node_t) + 8);
+		assert(n != NULL);
+
+		memset(n, 0, sizeof(tree_node_t));
 		int64_t *o = (int64_t *)tree_get_object(n);
 		o[0] = _shuf(i)<<1;
 		o[1] = 1024 - i;

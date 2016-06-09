@@ -23,6 +23,19 @@ static inline void ngx_rbtree_right_rotate(ngx_rbtree_node_t **root,
     ngx_rbtree_node_t *sentinel, ngx_rbtree_node_t *node);
 
 
+static inline ngx_rbtree_node_t *
+ngx_rbtree_min(ngx_rbtree_node_t *node, ngx_rbtree_node_t *sentinel)
+{
+    debug("node(%p)", node);
+    while (node->left != sentinel) {
+        debug("node(%p)", node);
+        node = node->left;
+    }
+
+    return node;
+}
+
+
 void
 ngx_rbtree_insert(ngx_rbtree_t *tree, ngx_rbtree_node_t *node)
 {
@@ -372,15 +385,13 @@ ngx_rbtree_find_key(ngx_rbtree_t *tree, int64_t key)
     ngx_rbtree_node_t *sentinel = tree->sentinel;
 
     while(node != sentinel) {
-        debug("node(%p), node->key(%lld)", node, node->key);
         if(key < node->key) {
             node = node->left;
         } else if(key > node->key) {
             node = node->right;
         } else {
             /* key == node->key */
-            while(node != sentinel && key == node->left->key) {
-                debug("node(%p), node->key(%lld)", node, node->key);
+            while(node->left != sentinel && key == node->left->key) {
                 node = node->left;
             }
             return(node);

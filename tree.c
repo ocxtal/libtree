@@ -308,6 +308,8 @@ unittest()
 {
 	tree_t *tree = tree_init(8, NULL);
 
+	#define _shuf(x)		( (0xff & ((i<<4) | (i>>4))) )
+
 	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
 
 	/* insert */
@@ -317,27 +319,71 @@ unittest()
 		assert(n != NULL);
 
 		int64_t *o = (int64_t *)tree_get_object(n);
-		o[0] = (0xff & ((i<<4) | (i>>4)))<<1;
+		o[0] = _shuf(i)<<1;
 		o[1] = i;
 
-		// debug("insert elem o[0](%lld), o[1](%lld)", o[0], o[1]);
-		// debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
-
-		// debug("i(0), n->parent(%p), n->left(%p), n->right(%p)",
-			// narr[0]->h.parent, narr[0]->h.left, narr[0]->h.right);
 		tree_insert(tree, n);
-		// debug("i(%lld), n->parent(%p), n->left(%p), n->right(%p)",
-			// i, n->h.parent, n->h.left, n->h.right);
 	}
 
-	/* search */
+	/* search (1) */
 	for(int64_t i = 0; i < 256; i++) {
 		tree_node_t *n = tree_search_key(tree, i<<1);
 		assert(n != NULL);
 
 		int64_t *obj = (int64_t *)tree_get_object(n);
 		assert(obj[0] == i<<1, "obj[0](%lld), key(%lld)", obj[0], i<<1);
-		assert(obj[1] == (0xff & ((i<<4) | (i>>4))), "obj[1](%lld), val(%lld)", obj[1], 0xff & ((i<<4) | (i>>4)));
+		assert(obj[1] == _shuf(i), "obj[1](%lld), val(%lld)", obj[1], _shuf(i));
+	}
+
+	/* remove */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+		tree_remove(tree, n);
+	}
+
+	/* search (2) */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n == NULL);
+	}
+	for(int64_t i = 128; i < 256; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == i, "obj[1](%lld), val(%lld)", obj[1], i);
+	}
+
+	/* add again */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = narr[i] = tree_create_node(tree);
+		assert(n != NULL);
+
+		int64_t *o = (int64_t *)tree_get_object(n);
+		o[0] = _shuf(i)<<1;
+		o[1] = 1024 - i;
+
+		tree_insert(tree, n);
+	}
+
+	/* search (3) */
+	for(int64_t i = 0; i < 128; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == 1024 - i, "obj[1](%lld), val(%lld)", obj[1], 1024 - i);
+	}
+	for(int64_t i = 128; i < 256; i++) {
+		tree_node_t *n = tree_search_key(tree, _shuf(i)<<1);
+		assert(n != NULL);
+
+		int64_t *obj = (int64_t *)tree_get_object(n);
+		assert(obj[0] == _shuf(i)<<1, "obj[0](%lld), key(%lld)", obj[0], _shuf(i)<<1);
+		assert(obj[1] == i, "obj[1](%lld), val(%lld)", obj[1], i);
 	}
 
 	tree_clean(tree);

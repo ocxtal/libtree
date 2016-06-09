@@ -9,12 +9,18 @@
 #define _NGX_RBTREE_H_INCLUDED_
 
 
-#include <ngx_config.h>
-#include <ngx_core.h>
+// #include <ngx_config.h>
+// #include <ngx_core.h>
 
+#include <stdint.h>         // for uint64_t
 
-typedef ngx_uint_t  ngx_rbtree_key_t;
-typedef ngx_int_t   ngx_rbtree_key_int_t;
+// typedef ngx_uint_t  ngx_rbtree_key_t;
+// typedef ngx_int_t   ngx_rbtree_key_int_t;
+
+/**
+ * modified to hold 64bit key-value pairs
+ */
+typedef int64_t ngx_rbtree_key_t;
 
 
 typedef struct ngx_rbtree_node_s  ngx_rbtree_node_t;
@@ -24,8 +30,8 @@ struct ngx_rbtree_node_s {
     ngx_rbtree_node_t     *left;
     ngx_rbtree_node_t     *right;
     ngx_rbtree_node_t     *parent;
-    u_char                 color;
-    u_char                 data;
+    uint8_t                 color;
+    uint8_t                 data;
 };
 
 
@@ -55,6 +61,19 @@ void ngx_rbtree_insert_value(ngx_rbtree_node_t *root, ngx_rbtree_node_t *node,
 void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t *root,
     ngx_rbtree_node_t *node, ngx_rbtree_node_t *sentinel);
 
+/*
+ * search functions
+ * find_key return the leftmost node
+ * added 2015/11/06
+ */
+ngx_rbtree_node_t *ngx_rbtree_find_key(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_key_left(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_key_right(ngx_rbtree_t *tree, ngx_rbtree_key_t key);
+ngx_rbtree_node_t *ngx_rbtree_find_left(ngx_rbtree_t *tree, ngx_rbtree_node_t *node);
+ngx_rbtree_node_t *ngx_rbtree_find_right(ngx_rbtree_t *tree, ngx_rbtree_node_t *node);
+
+typedef void (*ngx_rbtree_walk_pt) (ngx_rbtree_node_t **node, ngx_rbtree_node_t *sentinel);
+void ngx_rbtree_walk(ngx_rbtree_t *tree, ngx_rbtree_walk_pt walk);
 
 #define ngx_rbt_red(node)               ((node)->color = 1)
 #define ngx_rbt_black(node)             ((node)->color = 0)
@@ -68,7 +87,7 @@ void ngx_rbtree_insert_timer_value(ngx_rbtree_node_t *root,
 #define ngx_rbtree_sentinel_init(node)  ngx_rbt_black(node)
 
 
-static ngx_inline ngx_rbtree_node_t *
+static inline ngx_rbtree_node_t *
 ngx_rbtree_min(ngx_rbtree_node_t *node, ngx_rbtree_node_t *sentinel)
 {
     while (node->left != sentinel) {

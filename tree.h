@@ -16,8 +16,12 @@
 typedef struct tree_s tree_t;
 
 /**
- * @type tree_node_t
+ * @struct tree_node_s
  */
+struct tree_node_s {
+	uint8_t pad[32];
+	int64_t key;
+};
 typedef struct tree_node_s tree_node_t;
 
 /**

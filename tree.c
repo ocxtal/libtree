@@ -39,16 +39,18 @@ struct tree_s {
 	ngx_rbtree_node_t sentinel;
 };
 #define _next_v(v)					( *((uint8_t **)v) )
-#define _tail(v)					( (struct tree_node_s *)(v) )
+#define _tail(v)					( (struct tree_node_intl_s *)(v) )
 
 /**
- * @struct tree_node_s
+ * @struct tree_node_intl_s
  */
-struct tree_node_s {
+struct tree_node_intl_s {
 	ngx_rbtree_node_t h;
 };
 _static_assert(sizeof(struct tree_node_s) == 40);
-_static_assert(offsetof(struct tree_node_s, h.key) == TREE_OBJECT_OFFSET);
+_static_assert(sizeof(struct tree_node_intl_s) == 40);
+_static_assert(offsetof(struct tree_node_s, key) == TREE_OBJECT_OFFSET);
+_static_assert(offsetof(struct tree_node_intl_s, h.key) == TREE_OBJECT_OFFSET);
 _static_assert(tree_get_object(NULL) == (void *)TREE_OBJECT_OFFSET);
 
 /**
@@ -117,7 +119,7 @@ tree_t *tree_init(
 	_next_v(tree->v) = NULL;
 
 	/* init free list */
-	struct tree_node_s *tail = (struct tree_node_s *)(tree->v += 2 * sizeof(uint8_t *));
+	struct tree_node_intl_s *tail = (struct tree_node_intl_s *)(tree->v += 2 * sizeof(uint8_t *));
 	tail->h.key = (int64_t)NULL;
 	// tail->h.data = 0xff;
 	debug("vector inited, v(%p), head(%p), root(%p)", tree->v, tree->vhead, tree->vroot);
@@ -137,13 +139,13 @@ tree_node_t *tree_create_node(
 	tree_t *_tree)
 {
 	struct tree_s *tree = (struct tree_s *)_tree;
-	struct tree_node_s *tail = _tail(tree->v);
-	struct tree_node_s *node = NULL;
+	struct tree_node_intl_s *tail = _tail(tree->v);
+	struct tree_node_intl_s *node = NULL;
 
 	/* check the recycle list */
-	if((struct tree_node_s *)tail->h.key != NULL) {
+	if((struct tree_node_intl_s *)tail->h.key != NULL) {
 		/* recycle removed space */
-		node = (struct tree_node_s *)tail->h.key;
+		node = (struct tree_node_intl_s *)tail->h.key;
 		debug("node recycled, node(%p)", node);
 
 		/* update root of the freed list */
@@ -185,7 +187,7 @@ void tree_insert(
 	tree_node_t *_node)
 {
 	struct tree_s *tree = (struct tree_s *)_tree;
-	struct tree_node_s *node = (struct tree_node_s *)_node;
+	struct tree_node_intl_s *node = (struct tree_node_intl_s *)_node;
 	debug("tree->root(%p), tree->sentinel(%p)", tree->t.root, tree->t.sentinel);
 	ngx_rbtree_insert(&tree->t, (ngx_rbtree_node_t *)node);
 	return;
@@ -201,12 +203,12 @@ void tree_remove(
 	tree_node_t *_node)
 {
 	struct tree_s *tree = (struct tree_s *)_tree;
-	struct tree_node_s *node = (struct tree_node_s *)_node;
+	struct tree_node_intl_s *node = (struct tree_node_intl_s *)_node;
 	ngx_rbtree_delete(&tree->t, (ngx_rbtree_node_t *)node);
 
 	if(node->h.data == 0xff) {
 		/* append node to the head of freed list */
-		struct tree_node_s *tail = _tail(tree->v);
+		struct tree_node_intl_s *tail = _tail(tree->v);
 		node->h.key = tail->h.key;
 		tail->h.key = (int64_t)node;
 	}

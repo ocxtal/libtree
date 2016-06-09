@@ -32,6 +32,7 @@ struct ngx_rbtree_node_s {
     ngx_rbtree_node_t     *parent;
     uint8_t                 color;
     uint8_t                 data;
+    uint8_t                 pad[6];
 };
 
 

@@ -38,7 +38,7 @@ Insert a node to the tree.
 void tree_insert(tree_t *tree, tree_node_t *node);
 ```
 
-### tree^_remove
+### tree\_remove
 
 Remove a node, automatically freed if malloc'd with `tree_create_node`.
 

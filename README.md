@@ -190,7 +190,7 @@ Return an iterator of a set of sections contained in [lkey, rkey)
 
 ```
 ivtree_iter_t *ivtree_contained(ivtree_t *tree, int64_t lkey, int64_t rkey);
-``
+```
 
 #### ivtree\_containing
 

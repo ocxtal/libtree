@@ -464,8 +464,8 @@ ngx_ivtree_node_t *ivtree_next_node(
 	debug("ivtree_next_node, llim(%lld), rlim(%lld), tlim(%lld)", llim, rlim, tlim);
 
 	while(node != NULL) {
-        debug("check node(%p, %lld, %lld, %lld)",
-            node, node->lkey, node->rkey, node->rkey_max);
+		debug("check node(%p, %lld, %lld, %lld)",
+			node, node->lkey, node->rkey, node->rkey_max);
 
 		if(node->lkey >= tlim) { node = NULL; break; }
 		if((uint64_t)(node->rkey - llim) < (rlim - llim)) { break; }

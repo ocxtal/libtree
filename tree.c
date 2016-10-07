@@ -146,7 +146,7 @@ void rbtree_flush(
  *
  * @brief create a new node (not inserted in the tree)
  */
-rbtree_node_t *rbtree_create_node(
+RBTREE_NODE_T *rbtree_create_node(
 	rbtree_t *_tree)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
@@ -155,7 +155,7 @@ rbtree_node_t *rbtree_create_node(
 
 	/* mark node */
 	node->data = 0xff;
-	return((rbtree_node_t *)node);
+	return((RBTREE_NODE_T *)node);
 }
 
 /**
@@ -165,7 +165,7 @@ rbtree_node_t *rbtree_create_node(
  */
 void rbtree_insert(
 	rbtree_t *_tree,
-	rbtree_node_t *_node)
+	RBTREE_NODE_T *_node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
 	ngx_rbtree_node_t *node = (ngx_rbtree_node_t *)_node;
@@ -181,7 +181,7 @@ void rbtree_insert(
  */
 void rbtree_remove(
 	rbtree_t *_tree,
-	rbtree_node_t *_node)
+	RBTREE_NODE_T *_node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
 	ngx_rbtree_node_t *node = (ngx_rbtree_node_t *)_node;
@@ -199,12 +199,12 @@ void rbtree_remove(
  *
  * @brief search a node by key, returning the leftmost node
  */
-rbtree_node_t *rbtree_search_key(
+RBTREE_NODE_T *rbtree_search_key(
 	rbtree_t *_tree,
 	int64_t key)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
-	return((rbtree_node_t *)ngx_rbtree_find_key(&tree->t, key));
+	return((RBTREE_NODE_T *)ngx_rbtree_find_key(&tree->t, key));
 }
 
 /**
@@ -212,12 +212,12 @@ rbtree_node_t *rbtree_search_key(
  *
  * @brief search a node by key. returns the nearest node in the left half of the tree if key was not found.
  */
-rbtree_node_t *rbtree_search_key_left(
+RBTREE_NODE_T *rbtree_search_key_left(
 	rbtree_t *_tree,
 	int64_t key)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
-	return((rbtree_node_t *)ngx_rbtree_find_key_left(&tree->t, key));
+	return((RBTREE_NODE_T *)ngx_rbtree_find_key_left(&tree->t, key));
 }
 
 /**
@@ -225,12 +225,12 @@ rbtree_node_t *rbtree_search_key_left(
  *
  * @brief search a node by key. returns the nearest node in the right half of the tree if key was not found.
  */
-rbtree_node_t *rbtree_search_key_right(
+RBTREE_NODE_T *rbtree_search_key_right(
 	rbtree_t *_tree,
 	int64_t key)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
-	return((rbtree_node_t *)ngx_rbtree_find_key_right(&tree->t, key));
+	return((RBTREE_NODE_T *)ngx_rbtree_find_key_right(&tree->t, key));
 }
 
 /**
@@ -238,12 +238,12 @@ rbtree_node_t *rbtree_search_key_right(
  *
  * @brief returns the left next node
  */
-rbtree_node_t *rbtree_left(
+RBTREE_NODE_T *rbtree_left(
 	rbtree_t *_tree,
-	rbtree_node_t const *node)
+	RBTREE_NODE_T const *node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
-	return((rbtree_node_t *)ngx_rbtree_find_left(&tree->t, (ngx_rbtree_node_t *)node));
+	return((RBTREE_NODE_T *)ngx_rbtree_find_left(&tree->t, (ngx_rbtree_node_t *)node));
 }
 
 /**
@@ -251,12 +251,12 @@ rbtree_node_t *rbtree_left(
  *
  * @brief returns the right next node
  */
-rbtree_node_t *rbtree_right(
+RBTREE_NODE_T *rbtree_right(
 	rbtree_t *_tree,
-	rbtree_node_t const *node)
+	RBTREE_NODE_T const *node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
-	return((rbtree_node_t *)ngx_rbtree_find_right(&tree->t, (ngx_rbtree_node_t *)node));
+	return((RBTREE_NODE_T *)ngx_rbtree_find_right(&tree->t, (ngx_rbtree_node_t *)node));
 }
 
 /**
@@ -270,7 +270,7 @@ void rbtree_walk_intl(
 	void *_ctx)
 {
 	rbtree_t *tree = (rbtree_t *)_ctx;
-	tree->fn((rbtree_node_t *)(*node), tree->ctx);
+	tree->fn((RBTREE_NODE_T *)(*node), tree->ctx);
 	return;
 }
 void rbtree_walk(
@@ -329,7 +329,7 @@ void ivtree_flush(
  *
  * @brief create a new node (not inserted in the tree)
  */
-ivtree_node_t *ivtree_create_node(
+IVTREE_NODE_T *ivtree_create_node(
 	ivtree_t *tree)
 {
 	return((ivtree_node_t *)rbtree_create_node((rbtree_t *)tree));
@@ -342,7 +342,7 @@ ivtree_node_t *ivtree_create_node(
  */
 void ivtree_insert(
 	ivtree_t *_tree,
-	ivtree_node_t *_node)
+	IVTREE_NODE_T *_node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
 	struct ngx_ivtree_node_s *node = (struct ngx_ivtree_node_s *)_node;
@@ -358,7 +358,7 @@ void ivtree_insert(
  */
 void ivtree_remove(
 	ivtree_t *_tree,
-	ivtree_node_t *_node)
+	IVTREE_NODE_T *_node)
 {
 	struct rbtree_s *tree = (struct rbtree_s *)_tree;
 	ngx_rbtree_node_t *node = (ngx_rbtree_node_t *)_node;
@@ -484,7 +484,7 @@ ivtree_iter_t *ivtree_intersect(
 /**
  * @fn ivtree_next
  */
-ivtree_node_t *ivtree_next(
+IVTREE_NODE_T *ivtree_next(
 	ivtree_iter_t *_iter)
 {
 	struct ivtree_iter_s *iter = (struct ivtree_iter_s *)_iter;
@@ -494,7 +494,7 @@ ivtree_node_t *ivtree_next(
 
 	iter->node = (ngx_ivtree_node_t *)ngx_rbtree_find_right(
 		iter->t, (ngx_rbtree_node_t *)node);
-	return((ivtree_node_t *)node);
+	return((IVTREE_NODE_T *)node);
 }
 
 /**
@@ -564,7 +564,7 @@ unittest()
 	n->val = 0x12345678;
 
 	/* insert and search */
-	rbtree_insert(tree, (rbtree_node_t *)n);
+	rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	struct ut_rbnode_s *found = (struct ut_rbnode_s *)
 		 rbtree_search_key(tree, 0xcafebabe);
 	assert(found == n, "found(%p), n(%p)", found, n);
@@ -572,7 +572,7 @@ unittest()
 	assert(n->val == 0x12345678, "n->val(%lld)", n->val);
 
 	/* remove */
-	rbtree_remove(tree, (rbtree_node_t *)n);
+	rbtree_remove(tree, (RBTREE_NODE_T *)n);
 	found = (struct ut_rbnode_s *)rbtree_search_key(tree, 0xcafebabe);
 	assert(found == NULL, "found(%p), n(%p)", found, n);
 
@@ -596,7 +596,7 @@ unittest()
 
 		n->h.key = _shuf(i)<<1;
 		n->val = i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (1) */
@@ -614,7 +614,7 @@ unittest()
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
 			rbtree_search_key(tree, _shuf(i)<<1);
 		assert(n != NULL);
-		rbtree_remove(tree, (rbtree_node_t *)n);
+		rbtree_remove(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (2) */
@@ -640,7 +640,7 @@ unittest()
 
 		n->h.key = _shuf(i)<<1;
 		n->val = 1024 - i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (3) */
@@ -679,7 +679,7 @@ unittest()
 
 		n->h.key = rand();
 		n->val = i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* remove */
@@ -687,14 +687,14 @@ unittest()
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
 			rbtree_search_key(tree, i);
 		if(n != NULL) {
-			rbtree_remove(tree, (rbtree_node_t *)n);
+			rbtree_remove(tree, (RBTREE_NODE_T *)n);
 		}
 	}
 	rbtree_clean(tree);
 }
 
 /* create multiple nodes with malloc */
-void unittest_free_node(rbtree_node_t *node, void *ctx)
+void unittest_free_node(RBTREE_NODE_T *node, void *ctx)
 {
 	free(node);
 	return;
@@ -710,13 +710,13 @@ unittest()
 	/* insert */
 	for(int64_t i = 0; i < 256; i++) {
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
-			(rbtree_node_t *)malloc(sizeof(rbtree_node_t) + 8);
+			(RBTREE_NODE_T *)malloc(sizeof(rbtree_node_t) + 8);
 		assert(n != NULL);
 
 		memset(n, 0, sizeof(rbtree_node_t));
 		n->h.key = _shuf(i)<<1;
 		n->val = i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (1) */
@@ -734,7 +734,7 @@ unittest()
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
 			rbtree_search_key(tree, _shuf(i)<<1);
 		assert(n != NULL);
-		rbtree_remove(tree, (rbtree_node_t *)n);
+		rbtree_remove(tree, (RBTREE_NODE_T *)n);
 		free(n);
 	}
 
@@ -756,13 +756,13 @@ unittest()
 	/* add again */
 	for(int64_t i = 0; i < 128; i++) {
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
-			(rbtree_node_t *)malloc(sizeof(rbtree_node_t) + 8);
+			(RBTREE_NODE_T *)malloc(sizeof(rbtree_node_t) + 8);
 		assert(n != NULL);
 
 		memset(n, 0, sizeof(rbtree_node_t));
 		n->h.key = _shuf(i)<<1;
 		n->val = 1024 - i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (3) */
@@ -806,7 +806,7 @@ unittest()
 
 		n->h.key = _shuf(i)<<1;
 		n->val = 65536 - i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* flush and insert again */
@@ -819,7 +819,7 @@ unittest()
 
 		n->h.key = _shuf(i)<<1;
 		n->val = i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (1) */
@@ -840,7 +840,7 @@ unittest()
 		struct ut_rbnode_s *n = (struct ut_rbnode_s *)
 			rbtree_search_key(tree, _shuf(i)<<1);
 		assert(n != NULL);
-		rbtree_remove(tree, (rbtree_node_t *)n);
+		rbtree_remove(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search (2) */
@@ -875,10 +875,10 @@ unittest()
 	assert(n == NULL);
 
 	/* left / right of sentinel */
-	n = (struct ut_rbnode_s *)rbtree_left(tree, (rbtree_node_t *)&tree->sentinel);
+	n = (struct ut_rbnode_s *)rbtree_left(tree, (RBTREE_NODE_T *)&tree->sentinel);
 	assert(n == NULL);
 
-	n = (struct ut_rbnode_s *)rbtree_right(tree, (rbtree_node_t *)&tree->sentinel);
+	n = (struct ut_rbnode_s *)rbtree_right(tree, (RBTREE_NODE_T *)&tree->sentinel);
 	assert(n == NULL);
 
 	rbtree_clean(tree);
@@ -901,7 +901,7 @@ unittest()
 
 		n->h.key = _shuf(i)<<1;
 		n->val = i;
-		rbtree_insert(tree, (rbtree_node_t *)n);
+		rbtree_insert(tree, (RBTREE_NODE_T *)n);
 	}
 
 	/* search left */
@@ -994,7 +994,7 @@ unittest()
 	(n), (n)->lkey, (n)->rkey
 
 void ivtree_print_node(
-	ivtree_node_t *node,
+	IVTREE_NODE_T *node,
 	void *ctx)
 {
 	// ngx_ivtree_node_t *n = (ngx_ivtree_node_t *)node;
